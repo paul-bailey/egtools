@@ -1,0 +1,85 @@
+.TH EGSTRING 3 "September 2016" "EG" "EGTOOLS"
+.SH NAME
+\fBegstring\fR - A string object I wish was in the C standard library
+.SH SYNOPSIS
+.B #include <egstring.h>
+.P
+.IB string " = string_create(String *" old );
+.br
+.BI "string_destroy(String *" str );
+.br
+.IB cstring " = string_cstring(String *" string );
+.br
+.IB cstring " = string_dup(String *" string );
+.P
+.IB result " = string_compare(String *" s1 ", String *" s2 );
+.br
+.IB result " = string_ccompare(String *" string ", const char *" cstring );
+.br
+.IB size " = string_length(String *" string );
+.P
+.IB result " = string_putc(String *" string ", int " c );
+.br
+.IB result " = string_append(String *" string ", const char *" new );
+.br
+.IB count " = string_printf(String *" string ", const char *" format ", ...);"
+.br
+.IB string " = string_join(String *" s1 ", String *" s2 );
+.br
+.BI "string_strip(String *" string );
+.
+.SH DESCRIPTION
+.P
+Type \fBString\fR is an object that contains a c-string as well as other
+metadata about it. It is created with
+.BR string_create (3)
+and destroyed with
+.BR string_destroy (3).
+.BR string_cstring (3)
+returns a pointer to its internally stored C string.  This pointer should
+not be dereferenced after another call to modify the string object again.
+For a safer c-string, use
+.BR string_dup (3),
+but be sure to free the return value with
+.BR free (3).
+.P
+.BR string_compare (3)
+returns the \fBstrcmp\fR result of the c-strings contained in \fIs1\fR
+and \fIs2\fR.
+.BR string_ccompare (3)
+performs a similar string comparison between a String object and a
+c-string.
+.BR string_length (3)
+returns the length of \fIstring\fR, not counting the terminating nul char.
+.P
+.BR string_putc (3)
+appends the character \fIc\fR to \fIstring\fR.
+.BR string_append (3)
+appends c-string \fInew\fR to the end of \fIstring\fR.
+.BR string_printf (3)
+appends a formatted c-string to the end of \fRstring\fR, using the
+formatting conventions of
+.BR printf (3).
+.P
+.BR string_strip (3)
+removes leading and trailing whitespace from \fIstring\fR in place.
+.
+.SH BUGS
+These functions were written for convenience, not speed.  For a
+(self-proclaiming) more optimal solution, see Paul Hsieh's string
+library at
+.IR https://github.com/websnarg/bstrlib .
+.SH SEE ALSO
+.BR string_create (3),
+.BR string_destroy (3),
+.BR string_cstring (3),
+.BR string_dup (3),
+.BR string_compare (3),
+.BR string_ccompare (3),
+.BR string_length (3),
+.BR string_putc (3),
+.BR string_append (3),
+.BR string_printf (3),
+.BR stirng_strip (3)
+.SH AUTHORS
+Paul Bailey

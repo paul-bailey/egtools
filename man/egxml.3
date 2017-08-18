@@ -1,0 +1,60 @@
+.TH EGXML 3 "September 2016" "EG" "EGTOOLS"
+.SH NAME
+\fBxml\fR - Helpers for parsing and printing XML files
+.SH SYNOPSIS
+.B #include <egxml.h>
+.P
+.B Input File
+.RS 4
+.IB result " = xml_get_prologue(FILE *" fp );
+.P
+.IB tag " = xml_tag_parse(const char *" name );
+.RS 4
+.IB name " = xml_tag_name(XmlTag *" tag );
+.br
+.IB flag " = xml_tag_flags(XmlTag *" tag );
+.P
+.IB attr " = xml_tag_attribute(XmlTag *" tag ", XmlAttribute *" last );
+.br
+.BI xml_foreach_attribute( iter ", " tag ") { " actions... " }"
+.RS 4
+.IB name " = xml_attribute_name(XmlAttribute *" attr );
+.br
+.IB valstr " = xml_attribute_value(XmlAttribute *" attr );
+.RE
+.RE
+.P
+.IB result " = xml_parse_elements(FILE *" fp ", void *" priv ,
+.BI "const struct xml_elem_parser *" tbl ", const char *" term );
+.br
+.IB result " = xml_parse_attribute(void *" priv ,
+.BI "const struct xml_attr_parser *" tbl ", XmlTag *" tag );
+.P
+.IB text " = xml_elem_get_text(FILE *" fp ", unsigned int " flag );
+.RE
+.
+.P
+.B Output File
+.RS 4
+.IB tag " = xml_tag_create(const char *" name );
+.br
+.IB result " = xml_add_attribute(XmlTag *" tag ", const char *" name ", const char *" value );
+.br
+.IB result " = xml_strprints(String *" str ", const char *" s );
+.br
+.BI "xml_fprints(FILE *" fp ", const char *" s );
+.br
+.IB result " = xml_tag_recursive(FILE *" fp ", int " state ", struct xml_runner_t *" runner );
+.RE
+.
+.P
+.B Other Functions
+.RS 4
+.BI "xml_tag_free(XmlTag *" tag );
+.RE
+.br
+.SH DESCRIPTION
+.SH BUGS
+.SH SEE ALSO
+.SH AUTHORS
+Paul Bailey

@@ -1,0 +1,283 @@
+.TH "EGTOOLS" "7" "September 2016" "EG" "EGTOOLS"
+.
+.SH "NAME"
+\fBpbhier\fR - Overview of $HOME/ directory hierarchy
+.
+.SH "DESCRIPTION"
+.
+.P
+Except for a few places, this is for both home and work
+.P
+.I myconfig
+.RS 8
+Environment variables for EG tools; should be sourced by .bashrc or .bash_profile
+.RE
+.P
+.I .{anything}/
+.RS 8
+Anything with a "." in front means "do not mess with it"
+.RE
+.P
+.I .egmoney/
+.RS 8
+My EGMoney database.
+.RE
+.P
+.I Archives/
+.RS 8
+Saved tarballs, iso's, etc.
+.RE
+.P
+.I Backup/
+.RS 8
+Old SVN repository dumps.  To be phased out.
+.RE
+.P
+.I Clutter/
+.RS 8
+When things get out of hand.
+.RE
+.P
+.I Documents/
+.RS 8
+As in not source code, pictures (except where used for databases, etc.),
+or things that aren't documents
+.P
+.I art/
+.RS 8
+My art database, on home computers only
+.P
+.I Readme.txt
+.RS 8
+Wherein lies further discussion of this directory
+.RE
+.P
+.I art.db
+.RS 8
+Binary database for artwork
+.RE
+.P
+.I art.csv
+.RS 8
+text database for artwork, until I get the binary version working
+.RE
+.P
+.I NNN/
+.RS 8
+(number of artwork) directory containing photo of artwork and any notes
+not contained in the db file
+.RE
+.RE
+.P
+.I books/
+.RS 8
+Books or long writings in .txt or .pdf form.
+.RE
+.P
+.I chess/
+.RS 8
+Stored chess games, in .pgn form
+.RE
+.P
+.I Equities/
+.RS 8
+Temporary directory to dump recent 10-K filings, quarterly reports, etc.
+.RE
+.P
+.I info/
+.RS 8
+Like books/, except in shorter form.
+.P
+.I cheet/
+.RS 8
+cheet sheets: look-up tables, etc.
+.RE
+.P
+.I specs/
+.RS 8
+Specifications like POSIX, RFCs, etc.
+.RE
+.P
+.I fun/
+.RS 8
+Unimportant stuff I want to keep.
+.RE
+.P
+.I manuals/
+.RS 8
+Even more like books/, except specifically for user manuals, or CD manual
+kits.  Also englib stuff like software cookbooks.
+.RE
+.RE
+.P
+.I letters/
+.RS 8
+Saved old emails
+.RE
+.P
+.I recipes/
+.RS 8
+\fBhome\fR computer: cooking recipes
+.br
+\fBwork\fR computer: Software cookbooks (not manuals).  These can go int
+\fIinfo/manuals/\fR on home computers.
+.RE
+.P
+.I records/
+.RS 8
+Leases, receipts I want to keep long-term, etc.
+.P
+.I taxes/fyXX/
+.RS 8
+Tax records, where XX is the year
+.RE
+.RE
+.P
+.I writings/
+.RS 8
+My blogs, novels, and other masterpieces that I will
+certainly one day finish.
+.RE
+.RE
+.P
+.I Downloads/
+.RS 8
+Keep this clean and uncluttered.
+.RE
+.P
+.I Dropbox/
+.RS 8
+When possible, always kept as an immediate subdirectory of $HOME
+.P
+.I .todo
+.br
+.I .worktodo
+.RS 8
+My devtodo databases, XML files.  \fI.worktodo\fR is specifically
+work-related.
+.RE
+.P
+.I reading_list.txt
+.RS 8
+My reading list
+.RE
+.P
+.I Work/
+.RS 8
+Temporary work-related files, whose links can be given to faithful
+customers
+.RE
+.P
+.I hub/
+.RS 8
+My subversion repository - DO NOT TOUCH!!!
+.RE
+.P
+.I releases/
+.RS 8
+Tagged versions of things like eglib, etc.  Deprecated.
+.RE
+.P
+.I unix/
+.RS 8
+old-school unix sources
+.RE
+.P
+.I wp/
+.RS 8
+Wallpapers that I like enough to share between home PC and work PC
+.RE
+.P
+.I tmp/
+.RS 8
+Files intended for easy copy from one machine to another, when scp or
+email won't do.  Keep this clean
+.RE
+.RE
+.P
+.I Music/playlists/
+.RS 8
+Editable playlists, to export/import from/to iTunes or mplayer
+.RE
+.P
+.I Pictures/
+.RS 8
+Needs some severe cleanup.  What follows is what will be true when it's
+actually cleaned.
+.P
+\fI"Photos Library.photoslibrary"/\fR
+.RS 8
+My one true pristine library.
+.RE
+.P
+.I illustrations/
+.RS 8
+Adobe Photoshop projects, each project with its own subdirectory
+.TP
+.I inspiration/
+Whatever inspires me to do great things
+.RE
+.P
+.I scans/
+.RS 8
+Temporary scans, before they are imported into \fIPhotos
+Library.photoslibrary\fR
+.RE
+.P
+.I spool/work/
+.RS 8
+Files exported from Photos Library.photoslibrary for editing or
+formatting before printing.
+.RE
+.P
+.I spool/print/
+.RS 8
+Files from spool/work/ waiting to be printed.
+.RE
+.P
+.I webphotos/
+.RS 8
+Photos not taken by me or an acquaintance.
+.RE
+.P
+.I wp/
+.RS 8
+Wallpaper photos
+.RE
+.RE
+.P
+.I projects/
+.RS 8
+On work computers, this is where to store non-source material for each
+project.  Subdirectories are named
+.IR v545 ", " t680 ", etc."
+.P
+TIP: Use rsync -r to keep this sync'd on computers at work.
+.RE
+.P
+.I bin/
+.I share/
+.I lib/
+.I include/
+.RS 8
+Typical hierarchy for programs, but with $HOME as prefix
+.RE
+.P
+.I src/
+.RS 8
+Working copies of source code
+.RE
+.P
+.I egdb/
+.RS 8
+Work in progress.
+.RE
+.P
+.I tmp/
+.RS 8
+Directory where programs can create and destroy temporary files
+.P
+.I build_diffs/
+.RS 8
+Folder to place two source trees for easy diffing.
+.RE

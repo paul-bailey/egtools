@@ -1,0 +1,111 @@
+
+;; Set up tabs mode
+(setq-default
+   c-default-style  "linux"
+   c-basic-indent   8
+   tab-width        8
+   indent-tabs-mode nil
+   c-indent-tabs-mode nil
+   c-tab-always-indent nil
+   c-basic-offset   8
+   c-syntactic-indentation nil)
+;; (setq-default c-default-style "linux")
+
+;; stoopid emacs doesn't want to stay put (aiming at you, 24.4)
+(electric-indent-mode 0)
+
+;; Remove trailing whitespace every save
+(add-hook 'before-save-hook 'delete-trailing-whitespace )
+
+;; Highlight long lines
+(require 'whitespace)
+(setq whitespace-style '(lines-tail trailing face))
+(setq whitespace-line-column 73)
+(global-whitespace-mode 1)
+
+;; Insert an 80-char guide when I want it.
+;; Credit to someone named "Stefan Ludwig, who posted this on
+;; stackoverflow.com
+(defun insert-80 ()
+  "Instert an 80-character-wide guide at beginning of line."
+  (interactive)
+  (beginning-of-line)
+  (insert "0         1         2         3         4         5         6         7         |")
+  (newline)
+  (insert "01234567890123456789012345678901234567890123456789012345678901234567890123456789|")
+  (newline)
+)
+
+
+(put 'downcase-region 'disabled nil)
+
+(defun kill-other-buffers ()
+  "Kill all other buffers."
+  (interactive)
+  (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+
+(defun tojavadoc ()
+  "Turn doxygen /*! and \\ into javadoc /** and @"
+  (interactive)
+  (beginning-of-buffer)
+  (while (search-forward-regexp "^/\\*!" nil t)
+    (replace-match "/**" nil t))
+  (beginning-of-buffer)
+  (while (search-forward-regexp "^ \\* \\\\" nil t)
+    (replace-match " * @" nil t))
+  (beginning-of-buffer)
+  (while (search-forward-regexp "^/\\*\\* \\\\" nil t)
+    (replace-match "/** @" nil t))
+)
+
+;; emacs is no 'do one thing and do it well' program. It has to do
+;; mp3's too, because other programs do that too well.
+(add-to-list 'load-path "~/.emacs.d/site-lisp/emms")
+(require 'emms-setup nil 'noerrorx)
+(and (fboundp 'emms-standard) (emms-standard))
+(and (fboundp 'emms-default-players) (emms-default-players))
+
+;; EVIL mode! Try to use emacs like it's a REAL editor, like Vim
+(add-to-list 'load-path "~/.emacs.d/evil")
+(require 'evil nil 'noerrorx)
+(and (fboundp 'evil-mode) (evil-mode 1))
+
+(defun insert-date (prefix)
+    "Insert the current date. With prefix-argument, use ISO format. With
+   two prefix arguments, write out the day and month name."
+    (interactive "P")
+    (let ((format (cond
+                   ((not prefix) "%d.%m.%Y")
+                   ((equal prefix '(4)) "%Y-%m-%d")
+                   ((equal prefix '(16)) "%A, %d. %B %Y")))
+          (system-time-locale "de_DE"))
+      (insert (format-time-string format))))
+
+(global-set-key (kbd "C-c d") 'insert-date)
+
+;; Remove splash screen
+(setq inhibit-splash-screen t)
+
+;; increment number
+(defun increment-number-at-point ()
+  (interactive)
+  (skip-chars-backward "0123456789")
+  (or (looking-at "[0123456789]+")
+      (error "No number at point"))
+  (replace-match (number-to-string (1+ (string-to-number
+                                        (match-string 0))))))
+
+(defun decrement-number-at-point ()
+  (interactive)
+  (skip-chars-backward "0123456789")
+  (or (looking-at "[0123456789]+")
+      (error "No number at point"))
+  (replace-match (number-to-string (1- (string-to-number
+                                        (match-string 0))))))
+
+
+(define-key evil-normal-state-map
+  (kbd "C-a") 'increment-number-at-point)
+
+(setq gnus-selected-method '(nntp "www.newshosting.com"))
+(setq gnus-read-active-file nil)

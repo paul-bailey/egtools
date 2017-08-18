@@ -1,0 +1,115 @@
+.TH EGSTRING 3 "September 2016" "EG" "EGTOOLS"
+.SH NAME
+\fBeghash\fR - My own hash functions, so there
+.SH SYNOPSIS
+.B #include <eghash.h>
+.P
+.IP "Main hash functions"
+.IB table " = eghash_create(size_t " size ", unsigned long (*" calc ")(const void *, size_t));"
+.br
+.BI "eghash_destroy(HashTable *" table );
+.IP
+.IB result " = eghash_put(HashTable *" table ", const struct eghash_t *" key ", const struct eghash_t *" data );
+.br
+.IB result " = eghash_get(HashTable *" table ", const struct eghash_t *" key ",  struct eghash_t *" data );
+.br
+.IB result " = eghash_remove(HashTable *" table ", const struct eghash_t *" key );
+.br
+.IB result " = eghash_iterate(HashTable *" table ", eghash_iter_t *" state ", struct eghash_t *" key ", struct eghash_t *" data );
+.
+.IP "Serialization"
+.IB result " = eghash_sync(HashTable *" table ", int" fd );
+.br
+.IB table " = eghash_open(int " fd ", unsigned long (*" calc ")(const void *, size_t));"
+.
+.IP "Convenient hash calculators"
+.IB hash " = eg_djb_hash(const void *" data ", size_t " size );
+.br
+.IB hash " = eg_djb2_hash(const void *" data ", size_t " size );
+.br
+.IB hash " = eg_sdbm_hash(const void *" data ", size_t " size );
+.br
+.IB hash " = eg_psh_hash(const void *" data ", size_t " size );
+.
+.IP "Diagnostics"
+.BI "eghash_diag(HashTable *" table ", struct eghash_diag_t *" diag );
+.SH DESCRIPTION
+.P
+Type \fBHashTable\fR is defined in \fIeghash.h\fR.  It is a handle whose
+fields are private to the eghash library.
+.BR eghash_create (3)
+creates a new hash table.
+.BR eghash_open (3)
+reads an existing hash table from file.
+.BR eghash_destroy (3)
+frees a hash table and all its data from memory.
+.BR eghash_destroy (3)
+does not destroy a hash table on disk. Use the standard
+.BR unlink (2)
+call to destroy a hash-table file.
+.P
+.BR eghash_put (3)
+inserts \fIdata\fR and its \fIkey\fR into \fItable\fR.
+.BR eghash_get (3)
+retrieves it.
+.BR eghash_remove (3)
+deletes the data from the hash table.
+.B Important:
+Do not manipulate data returned from
+.BR eghash_get (3).
+This data should be treated as \fIconst\fR; it should not be dereferenced
+after
+.BR eghash_destroy (3)
+was called for the same \fItable\fR, or after
+.BR eghash_remove (3)
+was called for the same \fIkey\fR and \fItable\fR.  To change data
+already inserted into the hash table, make the changes elsewhere in
+memory and pass those changes with the old \fIkey\fR to
+.BR eghash_change (3).
+.P
+.BR eghash_iterate (3)
+iterates through the hash table in an unordered, arbitrary manner.  This
+could be useful for database matches (but there are better ways...).
+.P
+.BR eghash_diag (3)
+can be used for testing hash algorithms during development.
+.P
+Although it's better to write your own hash functions, the library
+provides a few.
+.BR eg_djb_hash (3)
+and
+.BR eg_djb2_hash (3)
+are Dan Bernstein hash algorithms (djb uses and add and djb2 uses an XOR).
+.BR eg_sdbm_hash (3)
+was created for SDBM.  See
+.RI < wwww.cse.yorku.ca/~oz/hash.html >.
+.BR eg_psh_hash (3)
+is Paul Hsieh's \fBSuperFastHash\fR algorithm. See
+.RI < www.azillionmonkeys.com >.
+.
+.SH BUGS
+.P
+The author wrote these functions so he has them whenever, wherever,
+even when there is some concern over the portability of API's like
+dbopen().  It was \fBnot\fR meant to be as robust or optimal as one
+of those libraries.
+.P
+.BR eghash_open (3)
+does a lot of double-buffering (as opposed to the faster swizzling in
+place) to enable table growth as needed later.  It's best used by
+programs that will be open for some time, or by daemons, because the
+only benefit of this hash table library lies in its runtime, in-memory
+access.
+.
+.SH SEE ALSO
+.BR eghash_create (3),
+.BR eghash_destroy (3),
+.BR eghash_put (3),
+.BR eghash_get_remove (3),
+.BR eghash_sync (3),
+.BR eghash_open (3),
+.BR eghash_iterate (3),
+.BR eghash_diag (3)
+.
+.SH AUTHORS
+Paul Bailey
