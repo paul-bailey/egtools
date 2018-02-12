@@ -14,19 +14,15 @@ static inline double abs__(double x)
 }
 
 static void
-build_fraction(struct eg_fraction_t *f, unsigned long *cf, size_t size)
+build_fraction(struct eg_fraction_t *f, unsigned long *cf, int size)
 {
-        unsigned long term = size;
-        unsigned long num = cf[--term];
-        unsigned long den = 1;
-
-        while (term-- > 0) {
-                unsigned long tmp = cf[term];
-                unsigned long new_num = tmp * num + den;
-                unsigned long new_den = num;
-
+        unsigned long num = 1;
+        unsigned long den = 0;
+        int i;
+        for (i = size; i >= 0; i--) {
+                unsigned long new_num = (unsigned long)cf[i] * num + den;
+                den = num;
                 num = new_num;
-                den = new_den;
         }
         f->num = num;
         f->den = den;
@@ -44,38 +40,50 @@ build_fraction(struct eg_fraction_t *f, unsigned long *cf, size_t size)
 void
 eg_fraction(double x, struct eg_fraction_t *f)
 {
-        double t = abs(x);
-        double xa = t;
-        double old_error = t;
-        unsigned long cf[40];
-        size_t size = 0;
+        enum { CFSIZ = 40, };
 
-        do {
+        /*
+         * array of truncated terms,
+         * whose size starts at 1 and can grow to CFSIZ.
+         */
+        unsigned long cf[CFSIZ];
+
+        double term, xabs, old_error;
+        int i;
+
+        old_error = xabs = term = abs(x);
+
+        for (i = 0; i < CFSIZ; i++) {
                 double new_error;
-                unsigned long tmp;
 
-                tmp = (unsigned long)t;
-                cf[size++] = tmp;
-                build_fraction(f, cf, size);
+                cf[i] = (unsigned long)term;
+                build_fraction(f, cf, i);
 
                 /* check error */
-                new_error = abs(f->val - xa);
-                if (tmp != 0 && new_error >= old_error) {
+                new_error = abs(f->val - xabs);
+                if (i != 0 && cf[i] != 0 && new_error >= old_error) {
                         /*
                          * New error is bigger than old error.
                          * This means that the precision limit has been
                          * reached. Pop this (useless) term and break out.
+                         *
+                         * TODO: Is it faster to have two eg_fraction_t
+                         * structs on stack, switch between them per
+                         * iteration, and memcpy() if we get here?
+                         *
+                         * REVISIT: Why ">=" instead of ">" ?
                          */
-                        --size;
-                        build_fraction(f, cf, size);
+                        build_fraction(f, cf, i - 1);
                         break;
                 }
+
                 old_error = new_error;
-                if (new_error == 0)
+                if (new_error == 0.0) /* Unlikely, but... */
                         break;
-                t -= (double)tmp;
-                t = 1 / t;
-        } while (size < 39);
+
+                term -= (double)cf[i];
+                term = 1.0 / term;
+        }
 
         if (x < 0.0) {
                 f->val = -f->val;
