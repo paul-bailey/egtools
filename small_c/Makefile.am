@@ -1,4 +1,4 @@
-bin_PROGRAMS = sizeof egfortune tree ts2date atab
+bin_PROGRAMS = sizeof egfortune tree ts2date atab egwc
 egfortune_SOURCES = fortune.c
 egfortune_CPPFLAGS = -DDATADIR=\"$(datadir)\"
 sizeof_SOURCES = sizeof.c
@@ -13,3 +13,4 @@ appdatadir = $(datadir)
 appdata_DATA = fortunes
 ts2date_SOURCES = ts2date.c
 atab_SOURCES = atab.c
+egwc_SOURCES = egwc.c
