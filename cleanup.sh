@@ -11,7 +11,15 @@ libtool
 autom4te.cache/
 aclocal.m4'
 
-subdirs='eged'
+subdirs='eged
+egscripts
+etc
+include
+lib
+man
+misc_install
+small_c
+tests'
 
 test -f Makefile && make clean
 
