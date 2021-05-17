@@ -166,7 +166,11 @@ eg_psh_hash(const void* data, size_t size)
 }
 
 /**
- * Git's version of a hash algorithm
+ * Git's version of a hash algorithm (FNV-1 algo)
+ *
+ * TODO: This assumes unsigned long is 32 bits, but we can use
+ * different FNV_PRIME and FNV_OFFSET_BASIS for 64-bit version.
+ * Cf. wikipedia article on this algorithm.
  */
 unsigned long EXPORT
 eg_git_hash(const void *buf, size_t len)
