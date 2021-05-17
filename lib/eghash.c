@@ -20,7 +20,7 @@
 # endif
 #endif
 
-#define DEFAULT_CALC eg_psh_hash
+#define DEFAULT_CALC eg_git_hash
 
 #define HTABLE_MAGIC (0x85763294) /* sure, why not */
 

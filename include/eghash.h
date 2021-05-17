@@ -54,6 +54,7 @@ extern unsigned long eg_djb_hash(const void *data, size_t size);
 extern unsigned long eg_djb2_hash(const void *data, size_t size);
 extern unsigned long eg_sdbm_hash(const void *data, size_t size);
 extern unsigned long eg_psh_hash(const void *data, size_t size);
+extern unsigned long eg_git_hash(const void *data, size_t size);
 
 /**
  * struct eghash_diag_t - Diagnostic info for testing hashing etc.

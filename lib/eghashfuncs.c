@@ -164,3 +164,18 @@ eg_psh_hash(const void* data, size_t size)
 
         return (unsigned long)hash;
 }
+
+/**
+ * Git's version of a hash algorithm
+ */
+unsigned long EXPORT
+eg_git_hash(const void *buf, size_t len)
+{
+        unsigned long hash = 0x811c9dc5;
+        unsigned char *ucbuf = (unsigned char *) buf;
+        while (len--) {
+                unsigned int c = *ucbuf++;
+                hash = (hash * 0x01000193) ^ c;
+        }
+        return hash;
+}
