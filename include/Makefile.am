@@ -4,6 +4,5 @@ include_HEADERS = \
  egxml.h \
  egtok.h \
  egdebug.h \
- eghash.h \
  egmath.h \
  egstring.h

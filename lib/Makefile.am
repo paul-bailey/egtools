@@ -8,9 +8,7 @@ libeg_devel_la_SOURCES = \
  egmath.c \
  token.c \
  xml.c \
- eghash.c \
  entities.c \
- eghashfuncs.c \
  pushd.c
 libeg_devel_la_LDFLAGS = -version-info 0:0:0
 libeg_devel_la_CPPFLAGS = -I$(top_srcdir)/include -Wall
