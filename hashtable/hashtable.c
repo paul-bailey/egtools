@@ -51,6 +51,16 @@ struct hashtable_t {
  * @next: Pointer to next entry in this array index, in case of collision
  * @datalen: Length of @data
  * @data: Pointer to the data corresponding to @key
+ *
+ * TODO: Add HTBL_UBUCKET flag at hashtable_create(), make this struct
+ * be public, and have a user-bucket version of access functions:
+ *
+ *      int hashtable_putbucket(struct hashtable_t *tbl,
+ *                              struct bucket_t *b);
+ *      struct bucket_t *hashtable_getbucket(struct hashtable_t *tbl,
+ *                                           const char *key);
+ *      int hashtable_foreach_bucket(struct hashtable_t *tbl,
+ *                                   int (*action)(struct bucket_t *));
  */
 struct bucket_t {
         char *key;
