@@ -43,36 +43,6 @@ struct hashtable_t {
         size_t shrink_size;
 };
 
-/**
- * struct bucket_t - A single entry for the @bucket field of
- *                      struct hashtable_t
- * @key: Pointer to the key
- * @hash: Hash number of key
- * @next: Pointer to next entry in this array index, in case of collision
- * @datalen: Length of @data
- * @data: Pointer to the data corresponding to @key
- *
- * TODO: Add HTBL_UBUCKET flag at hashtable_create(), make this struct
- * be public, and have a user-bucket version of access functions:
- *
- *      int hashtable_putbucket(struct hashtable_t *tbl,
- *                              struct bucket_t *b);
- *      struct bucket_t *hashtable_getbucket(struct hashtable_t *tbl,
- *                                           const char *key);
- *      int hashtable_foreach_bucket(struct hashtable_t *tbl,
- *                                   int (*action)(struct bucket_t *));
- */
-struct bucket_t {
-        char *key;
-        unsigned long hash;
-        struct bucket_t *next;
-        unsigned int datalen;
-        union {
-                unsigned long long _align;
-                void *data;
-        };
-};
-
 enum {
         HTBL_INITIAL_SIZE = 64,
 };
@@ -268,8 +238,9 @@ find_entry(struct hashtable_t *tbl, const char *key, unsigned int *i)
  *      below.)
  *
  * Return: -1 if error, 0 if success.  If ENOMEM is not set, then the
- *      error is due to @key already being stored and HTBL_CLOBBER is
- *      not set.
+ *      error is due one of the following:
+ *      - HTBL_UBUCKET is set.  Call hashtable_put_bucket instead.
+ *      - @key is already stored and HTBL_CLOBBER is not set.
  *
  * Note: Using HTBL_CLOBBER for a table where HTBL_COPY_DATA was not
  *      set has the potential to zombify data and therefore leak memory.
@@ -292,6 +263,9 @@ hashtable_put(struct hashtable_t *tbl, const char *key,
         unsigned long hashno;
         size_t nalloc;
         struct bucket_t *b, *bsave;
+
+        if (!!(tbl->flags & HTBL_UBUCKET))
+                return -1;
 
         hashno = calc_hash(tbl, key);
         b = find_entry_helper(tbl, key, &i, hashno);
@@ -369,6 +343,64 @@ hashtable_put(struct hashtable_t *tbl, const char *key,
 }
 
 /**
+ * hashtable_put_bucket - HTBL_UBUCKET version of hashtable_put
+ * @tbl: Hash table.
+ * @bucket: Bucket to install.  User sets .key, .data, and (if the
+ *      user would lose this info otherwise) .datalen fields.
+ *      This library will maintain the other fields.  @bucket must
+ *      remain in memory for as long as you intend to be able to access
+ *      it via this library; I.E. a copy will not be made here.
+ *
+ * Return: Zero if success, -1 if error.  Errors include @key already
+ *      existing in the table, or HTBL_UBUCKET flags not being set in
+ *      the table.
+ *
+ * TODO: HTBL_CLOBBER not supported for this function yet.  It would
+ *      result in a memory leak.
+ */
+int
+hashtable_put_bucket(struct hashtable_t *tbl, struct bucket_t *bucket)
+{
+        unsigned int i;
+        unsigned long hashno;
+        struct bucket_t *b, *bsave = NULL;
+
+        if (!(tbl->flags & HTBL_UBUCKET))
+                return -1;
+
+        hashno = calc_hash(tbl, bucket->key);
+        b = find_entry_helper(tbl, bucket->key, &i, hashno);
+        if (b) {
+                if (!(tbl->flags & HTBL_CLOBBER))
+                        return -1;
+
+                /*
+                 * TODO: Fall through so that insert_replacement
+                 * below can be called.  Right now we can't do
+                 * that, because there's no way hand old @b back
+                 * to user for RAM cleanup.
+                 */
+                return -1;
+        }
+        bsave = b;
+
+        /* .data, .key, and .datalen already set by user */
+
+        bucket->hash = hashno;
+        if (bsave) {
+                /* Clobber old entry */
+                return insert_replacement(tbl, i, bucket, bsave);
+        } else {
+                /* Add new entry */
+                bucket->next = tbl->bucket[i];
+                tbl->bucket[i] = bucket;
+                tbl->count++;
+                maybe_resize_table(tbl);
+        }
+        return 0;
+}
+
+/**
  * hashtable_get - Get an entry from the hash table
  * @tbl: Hash table
  * @key: Key to look up
@@ -386,6 +418,20 @@ hashtable_get(struct hashtable_t *tbl, const char *key, size_t *len)
         if (len)
                 *len = b->datalen;
         return b->data;
+}
+
+/**
+ * hashtable_getbucket - Get an entry from the hash table
+ * @tbl: Hash table
+ * @key: Key to look up.
+ *
+ * Return: Struct bucket_t handle to the data.
+ */
+struct bucket_t *
+hashtable_get_bucket(struct hashtable_t *tbl, const char *key)
+{
+        unsigned int dummy = 0;
+        return find_entry(tbl, key, &dummy);
 }
 
 /**
@@ -488,6 +534,10 @@ hashtable_free(struct hashtable_t *tbl,
  * argument to hashtable_put() will be made and stored with
  * the hash table.  Later calls to hashtable_get() will return
  * the copy rather than the original.
+ *
+ * If HTBL_UBUCKET is set in @flags, then disregard the other flags
+ * altogether and assume that user is declaring and managing its own
+ * bucket_t structs.
  */
 struct hashtable_t *
 hashtable_create(unsigned int flags, unsigned long (*algo)(const char *))
@@ -525,6 +575,29 @@ hashtable_for_each(struct hashtable_t *tbl,
                          */
                         struct bucket_t *tmp = b->next;
                         int res = action(b->key, b->data, b->datalen);
+                        if (res != 0)
+                                return res;
+                        b = tmp;
+                }
+        }
+        return 0;
+}
+
+/**
+ * hashtable_for_each_bucket - Like hashtable_for_each, but meant for
+ *              hashtables created with HTBL_UBUCKET.
+ */
+int
+hashtable_for_each_bucket(struct hashtable_t *tbl,
+                int (*action)(struct bucket_t *))
+{
+        size_t i;
+        for (i = 0; i < tbl->size; i++) {
+                struct bucket_t *b = tbl->bucket[i];
+                while (b != NULL) {
+                        /* Cf. comment in hashtable_for_each() */
+                        struct bucket_t *tmp = b->next;
+                        int res = action(b);
                         if (res != 0)
                                 return res;
                         b = tmp;
