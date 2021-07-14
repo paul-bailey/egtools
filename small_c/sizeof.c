@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <setjmp.h>
 #include <time.h>
+#include <signal.h>
 
 #define SIZEOF_PARAMS(type) \
         { .s = #type, .size = sizeof(type), }
@@ -47,6 +48,7 @@ static const struct sizeof_tbl_t {
         SIZEOF_PARAMS(daddr_t),
         SIZEOF_PARAMS(caddr_t),
         SIZEOF_PARAMS(time_t),
+        SIZEOF_PARAMS(sig_atomic_t),
         // SIZEOF_PARAMS(useconds_t),
         SIZEOF_PARAMS(suseconds_t),
         SIZEOF_PARAMS(register_t),
